@@ -1,10 +1,4 @@
 #!/bin/bash
-#用法：wget -O - https://raw.githubusercontent.com/eros520/Script/main/aws.sh | bash -s -- ens5 1700
-# 检查是否提供了足够的参数
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <interface_name> <traffic_limit>"
-    exit 1
-fi
 
 # 参数
 #interface_name=ens5：ens5是aws光帆默认的网卡名称，这个你可以按照实际情况更改
