@@ -1,5 +1,6 @@
 from curl_cffi import requests
 import re
+import os
 import urllib.parse
 from bs4 import BeautifulSoup
 
@@ -8,7 +9,7 @@ telegram_bot_token = ''
 # 接收消息的聊天ID
 chat_id = ''
 # 构建Telegram API URL
-telegram_api_url = "" # 代理api,可以使用自己的反代
+telegram_api_url = "https://api.telegram.org" # 代理api,可以使用自己的反代
 
 # 定义一个请求TG函数
 def telegram_Bot(telegram_bot_token,chat_id,message):
@@ -22,7 +23,7 @@ def telegram_Bot(telegram_bot_token,chat_id,message):
     return response_data['ok']  # 修改：将 msg 作为返回值
 
 # 定义 cookie
-cookie = ''
+cookie = os.environ.get("YY_COOKIE","")
 
 # 第一个请求
 url1 = "https://www.yueing.org/home.php?id=1&mod=task&do=apply"
@@ -63,5 +64,6 @@ html_content = response3.text
 soup = BeautifulSoup(html_content, 'html.parser')
 time_ago = soup.select_one('span.xg1.xw0 span').get_text(strip=True)
 task_completion = ' '.join([item for item in soup.select_one('dd.ntc_body').stripped_strings if '查看我的积分' not in item])
-
-print(f'{time_ago}，{task_completion}')
+# print(f'{time_ago}，{task_completion}')
+message2 = f'{time_ago}，{task_completion}'
+result2 = telegram_Bot(telegram_bot_token, chat_id, message2)
