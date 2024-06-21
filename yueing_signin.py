@@ -1,7 +1,6 @@
 from curl_cffi import requests
 import re
 import urllib.parse
-from lxml import html
 from bs4 import BeautifulSoup
 
 # 你的Telegram机器人的API token
@@ -44,7 +43,6 @@ response1 = requests.get(url1, headers=headers1)
 
 # 检查响应文本中是否包含特定的字符串
 if "抱歉，本期您已申请过此任务，请下期再来" in response1.text:
-    print("抱歉，本期您已申请过此任务，请下期再来")
     message = "抱歉，本期您已申请过此任务，请下期再来"
 # 调用函数并接收返回值
     result = telegram_Bot(telegram_bot_token, chat_id, message)
@@ -55,20 +53,7 @@ if "抱歉，本期您已申请过此任务，请下期再来" in response1.text
 else:
     # 第二个请求
     url2 = "https://www.yueing.org/home.php?do=draw&mod=task&id=1&item=doing"
-    headers2 = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Referer": "https://www.yueing.org/home.php?mod=task&do=draw&id=1",
-        "Sec-Fetch-Site": "same-origin",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0",
-        "Sec-Fetch-Mode": "navigate",
-        "Host": "www.yueing.org",
-        "Accept-Language": "zh-CN,zh-Hans;q=0.9",
-        "Sec-Fetch-Dest": "document",
-        "Connection": "keep-alive",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Cookie": cookie
-    }
-    response2 = requests.get(url2, headers=headers2)
+    response2 = requests.get(url2, headers=headers1)
     # print(response2.text)
 
 # 第三个请求
