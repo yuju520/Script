@@ -4,7 +4,7 @@ import urllib.parse
 import sys  # 引入 sys 模块
 
 # 定义 cookie
-cookie = 'BlEM_2132_saltkey=f6OT8EV2; BlEM_2132_did=lZPQ8QLp1FQq0Slf; BlEM_2132_lastvisit=1712804029; BlEM_2132_nofavfid=1; BlEM_2132_saltkey=I1eEj1mm; BlEM_2132_lastvisit=1711950315; BlEM_2132_nofavfid=1; BlEM_2132_smile=4D1; BlEM_2132_did=PS2cSL4sjpCgmCXM; BlEM_2132_ulastactivity=cc3eNkiuSONgImvyTTkbXDJcTa8%2BR7ElS28RRtm7HIQMn7ARohQe; BlEM_2132_lastcheckfeed=43250%7C1694522875; BlEM_2132_sid=Cz4Dv2; BlEM_2132_auth=d99a%2BaQpsns%2BpDzxZL3dymzyBDcpMuj5vHN%2FxSCgS2mgP9ux5UANBcqCs08uN060e1WojQi6jGNrZHec6DdCOifk7g; BlEM_2132_lastcheckfeed=43250%7C1715354843; BlEM_2132_st_t=43250%7C1715354942%7Cb8c3702f95a61f554b72e19bf91356f3; BlEM_2132_atarget=1; BlEM_2132_forum_lastvisit=D_59_1715354942; BlEM_2132_visitedfid=59; BlEM_2132_smile=4D1; BlEM_2132_viewid=tid_115672; BlEM_2132_clearUserdata=forum; BlEM_2132_st_p=43250%7C1715354986%7C6ecdce065dd208c631eec63c4b1b5ced; BlEM_2132_ulastactivity=870fB%2F7Cw3M10TnINFuKng1hsF5iXKJ0nsOvdkj5EmJc7C%2B8TkIj; BlEM_2132_lastact=1715355036%09home.php%09spacecp'
+cookie = ''
 
 # 第一个请求
 url1 = "https://www.yueing.org/home.php?id=1&mod=task&do=apply"
