@@ -1,0 +1,196 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var downtimeCells = document.querySelectorAll('th.node-cell.os.center');
+    downtimeCells.forEach(function(cell) {
+        var newTh = document.createElement('th');
+        newTh.className = 'node-cell downtime center';
+        newTh.textContent = '到期or备注';
+        cell.parentNode.insertBefore(newTh, cell.nextSibling);
+    });
+
+// 改对应小🐔的序号，选text的就是备注，选Date的改YYYY-MM-DD即可
+    const affLinks = {
+        3: { expiration: new Date('2024-11-14T00:00:00Z'), content: { type: 'text', value: '' } },
+        6: { content: { type: 'text', value: '家里🐔儿' } },
+        7: { content: { type: 'text', value: '每月14号续费' } },
+        8: { expiration: new Date('2024-11-23T00:00:00Z'), content: { type: 'text', value: '' } },
+        9: { expiration: new Date('2024-09-12T00:00:00Z'), content: { type: 'text', value: '' } },
+        10: { expiration: new Date('2024-12-27T00:00:00Z'), content: { type: 'text', value: '' } },
+        12: { expiration: new Date('2025-03-16T00:00:00Z'), content: { type: 'text', value: '' } },
+        14: { expiration: new Date('2025-01-26T11:19:33Z'), content: { type: 'text', value: '' } },
+        16: { content: { type: 'text', value: '每月14号续费' } },
+        17: { expiration: new Date('2025-02-01T00:00:00Z'), content: { type: 'text', value: '' } }
+    };
+
+    const createCountdown = (expirationDate) => {
+        const $countdown = document.createElement('div');
+        $countdown.className = 'countdown'; // 添加类名
+        $countdown.style.position = 'relative';
+        $countdown.style.width = '100%';
+        $countdown.style.height = '16px'; // 进度条高度减小
+        $countdown.style.backgroundColor = '#3e3e3e';
+        $countdown.style.borderRadius = '4px'; // 四个角带弧度
+        $countdown.style.overflow = 'hidden';
+
+        const $progress = document.createElement('div');
+        $progress.className = 'progress'; // 添加类名
+        $progress.style.position = 'absolute';
+        $progress.style.height = '100%';
+        $progress.style.width = '0%';
+        $progress.style.backgroundImage = 'linear-gradient(to right, #48dbfb, #feca57, #ff6b6b)'; // 渐变色从蓝色到黄色再到红色
+        $progress.style.transition = 'width 0.6s ease';
+
+        const $countdownTime = document.createElement('div');
+        $countdownTime.style.position = 'absolute';
+        $countdownTime.style.width = '100%';
+        $countdownTime.style.height = '100%';
+        $countdownTime.style.display = 'flex';
+        $countdownTime.style.alignItems = 'center';
+        $countdownTime.style.justifyContent = 'center';
+        $countdownTime.style.color = '#fff';
+        $countdownTime.style.fontWeight = 'bold';
+        $countdownTime.style.fontSize = '11px'; // 字体大小减小
+        $countdownTime.style.textShadow = '1px 1px 2px rgba(0,0,0,0.7)';
+
+        const createMarqueeBorder = (element) => {
+            element.style.border = '2px solid';
+            element.style.borderImage = 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet) 1';
+            element.style.animation = 'marquee 2s linear infinite';
+        };
+
+        const updateCountdown = () => {
+            const now = new Date();
+            const diff = expirationDate.getTime() - now.getTime();
+            if (diff <= 0) {
+                $countdownTime.textContent = '已过期';
+                $progress.style.width = '100%';
+                $progress.style.backgroundColor = '#ff0000'; // 更醒目的红色
+                $progress.style.backgroundImage = 'none';
+                createMarqueeBorder($countdown);
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+            const totalDays = Math.ceil((expirationDate - now) / (1000 * 60 * 60 * 24));
+            const progressPercent = (365 - totalDays) / 365 * 100; // 假设一年为基准
+
+            $countdownTime.textContent = `${days}天${hours}小时`;
+            $progress.style.width = `${progressPercent}%`;
+        };
+
+        updateCountdown();
+        setInterval(updateCountdown, 3600000); // 每小时更新一次
+
+        $countdown.appendChild($progress);
+        $countdown.appendChild($countdownTime);
+
+        return $countdown;
+    };
+
+    const rows = document.querySelectorAll('tr');
+    rows.forEach((row) => {
+        let osCell = row.querySelector('td.node-cell.os.center');
+        let downtimeCell = document.createElement('td');
+        downtimeCell.classList.add('node-cell', 'downtime', 'center');
+        let nodeId = row.id.substring(1);
+        let affLink = affLinks[nodeId];
+        if (!affLink) {
+            affLink = { content: { type: 'text', value: '暂无' } };
+        }
+        if (osCell && affLink && affLink.content) {
+            let textNode = document.createTextNode(affLink.content.value);
+            downtimeCell.appendChild(textNode);
+
+            if (affLink.expiration) {
+                let countdown = createCountdown(affLink.expiration);
+                downtimeCell.appendChild(countdown);
+            }
+
+            osCell.parentNode.insertBefore(downtimeCell, osCell.nextSibling);
+        }
+    });
+});
+
+// 对已到期的进度条添加跑马灯边框动画样式，不需要可以删掉
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes marquee {
+    0% {
+        border-image-source: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+    }
+    50% {
+        border-image-source: linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red);
+    }
+    100% {
+        border-image-source: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+    }
+}
+.countdown {
+    animation: marquee 2s linear infinite;
+}
+`;
+document.head.appendChild(style);
+</script>
+
+
+<style>
+/* 屏幕适配 */
+@media only screen and (min-width: 1200px) {
+	.ui.container {
+        width: 80% !important;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+	.ui.card>.content>.header:not(.ui), .ui.cards>.card>.content>.header:not(.ui) {
+		margin-top: 0.4em !important;
+	}
+}
+ 
+/* 整体图标 */
+i.icon {
+	color: #000;
+	width: 1.2em !important;
+}
+/* 背景图片 */
+body {
+	content: " " !important;
+	background: fixed !important;
+	z-index: -1 !important;
+	top: 0 !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	left: 0 !important;
+	background-position: top !important;
+	background-repeat: no-repeat !important;
+	background-size: cover !important;
+	background-image: url(https://s3.bmp.ovh/imgs/2024/04/16/4670022590a2f367.jpg) !important;
+	font-family: Arial,Helvetica,sans-serif !important;
+}
+
+/* 版权 */
+.ui.inverted.segment, .ui.primary.inverted.segment {
+    color: #000 !important;
+    font-weight: bold !important;
+    background-color: #fafafaa3 !important;
+}
+</style>
+<!--Logo和版权-->
+<script>
+window.onload = function(){
+var avatar=document.querySelector(".item img")
+var footer=document.querySelector("div.is-size-7")
+footer.innerHTML="Powered by Eros"
+footer.style.visibility="visible"
+avatar.src="https://s3.bmp.ovh/imgs/2024/04/16/6f4ff591fefb43ca.png"
+avatar.style.visibility="visible"
+}
+var faviconurl="https://s3.bmp.ovh/imgs/2024/04/16/6f4ff591fefb43ca.png" ;            
+var link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+link.type = 'image/x-icon';
+link.rel = 'shortcut icon';
+link.href = faviconurl;
+document.getElementsByTagName('head')[0].appendChild(link);
+</script>
