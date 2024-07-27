@@ -14,9 +14,9 @@ chmod 600 ~/.ssh/authorized_keys
 chmod 700 ~/.ssh
 
 # 修改SSH相关配置
-sudo sed -i '/^#\?\(PubkeyAuthentication\s*\).*$/\1yes/' /etc/ssh/sshd_config
-sudo sed -i '/^#\?\(PasswordAuthentication\s*\).*$/\1no/' /etc/ssh/sshd_config
-sudo sed -i '/^#\?\(ChallengeResponseAuthentication\s*\).*$/\1no/' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?PubkeyAuthentication.*/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/g' /etc/ssh/sshd_config
+sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/g' /etc/ssh/sshd_config
 
 # 重启SSH服务
 sudo systemctl restart sshd
