@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # 创建SSH Key
-if [! -f ~/.ssh/id_rsa ]; then
+if [ -f ~/.ssh/id_rsa ]; then
+    echo "SSH Key已经存在"
+else
     echo "创建SSH Key..."
-    ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -q -N ""
+    ssh-keygen -t rsa -f ~/.ssh/id_rsa -q -N ""
 fi
 
 # 授权密钥
@@ -20,4 +22,5 @@ sudo sed -i '/^#\?\(ChallengeResponseAuthentication\s*\).*$/\1no/' /etc/ssh/sshd
 sudo systemctl restart sshd
 
 # 输出生成的私钥
+echo "您的SSH Key为，请牢记！"
 cat ~/.ssh/id_rsa
