@@ -7,23 +7,21 @@ import sys
 from tabulate import tabulate
 from playwright.sync_api import sync_playwright
 
-# 创建一个StringIO对象
+# 创建一个StringIO对象来捕获输出
 output = io.StringIO()
 
 # 将sys.stdout重定向到StringIO对象
 sys.stdout = output
 
-#Telegram Bot Token
+# Telegram Bot 配置
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 
-#Linux Do账号密码
+# Linux.do 账号密码
 USERNAME = os.environ.get("LD_USERNAME")
 PASSWORD = os.environ.get("LD_PASSWORD")
 
-
 HOME_URL = "https://linux.do/"
-
 
 class LinuxDoBrowser:
     def __init__(self) -> None:
@@ -32,8 +30,10 @@ class LinuxDoBrowser:
         self.context = self.browser.new_context()
         self.page = self.context.new_page()
         self.page.goto(HOME_URL)
+        self.visited_posts = 0  # 新增：记录访问的帖子数量
 
     def login(self):
+        # 执行登录操作
         self.page.click(".login-button .d-button-label")
         time.sleep(2)
         self.page.fill("#login-account-name", USERNAME)
@@ -44,31 +44,30 @@ class LinuxDoBrowser:
         time.sleep(10)
         user_ele = self.page.query_selector("#current-user")
         if not user_ele:
-            print("Login failed")
+            print("登录失败")
             return False
         else:
-            print("Check in success")
+            print("签到成功")
             return True
 
     def click_topic(self):
-        max_attempts = 3  # 设置最大尝试次数为3
-        attempt_count = 0  # 初始化尝试计数器
-
-        for topic in self.page.query_selector_all("#list-area .title"):
-            if attempt_count >= max_attempts:  # 如果尝试次数已达到最大值，则退出循环
-                break
-
+        # 修改：随机访问5-10个帖子
+        num_posts_to_visit = random.randint(5, 10)
+        topics = self.page.query_selector_all("#list-area .title")
+        
+        for topic in random.sample(topics, min(num_posts_to_visit, len(topics))):
             new_page = self.context.new_page()
             new_page.goto(HOME_URL + topic.get_attribute("href"))
             time.sleep(3)  # 等待页面加载
 
             if random.random() < 0.02:  # 有2%的概率执行点赞操作
                 self.click_like(new_page)
-            attempt_count += 1  # 增加尝试计数器
-
+            
+            self.visited_posts += 1  # 增加访问的帖子计数
             time.sleep(3)  # 等待操作完成
             new_page.close()  # 关闭新页面
 
+        print(f"共访问了 {self.visited_posts} 个帖子")
 
     def run(self):
         if not self.login():
@@ -78,9 +77,10 @@ class LinuxDoBrowser:
 
     def click_like(self, page):
         page.locator(".discourse-reactions-reaction-button").first.click()
-        print("Like success")
+        print("点赞成功")
 
     def print_connect_info(self):
+        # 打印连接信息
         page = self.context.new_page()
         page.goto("https://connect.linux.do/")
         rows = page.query_selector_all("table tr")
@@ -100,32 +100,39 @@ class LinuxDoBrowser:
 
         page.close()
 
-
 if __name__ == "__main__":
     if not USERNAME or not PASSWORD:
-        print("Please set USERNAME and PASSWORD")
+        print("请设置 USERNAME 和 PASSWORD 环境变量")
         exit(1)
-    l = LinuxDoBrowser()
-    l.run()
+    
+    try:
+        l = LinuxDoBrowser()
+        l.run()
+    except Exception as e:
+        # 捕获并记录异常
+        error_message = f"执行过程中发生错误: {str(e)}"
+        print(error_message)
+        sys.stdout = sys.__stdout__  # 恢复标准输出
+        output_text = output.getvalue() + "\n" + error_message
+    else:
+        # 获取正常输出文本
+        output_text = output.getvalue()
+    finally:
+        # 重定向 sys.stdout 回原始控制台
+        sys.stdout = sys.__stdout__
 
-# 获取输出文本
-output_text = output.getvalue()
+    # 使用 Telegram API 发送消息
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    data = {
+        "chat_id": CHAT_ID,
+        "text": output_text,
+        "parse_mode": "Markdown"  # 可选，如果你的消息中包含Markdown格式
+    }
 
-# 重定向sys.stdout回原始控制台
-sys.stdout = sys.__stdout__
+    response = requests.post(url, json=data)
 
-# 使用Telegram API发送消息
-url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-data = {
-    "chat_id": CHAT_ID,
-    "text": output_text,
-    "parse_mode": "Markdown"  # 可选，如果你的消息中包含Markdown格式
-}
-
-response = requests.post(url, json=data)
-
-# 检查请求是否成功
-if response.ok:
-    print("消息发送成功")
-else:
-    print("发送失败", response.text)
+    # 检查请求是否成功
+    if response.ok:
+        print("消息发送成功")
+    else:
+        print("发送失败", response.text)
